@@ -1,0 +1,23 @@
+[Unit]
+Description=BarrioDigital - BFF
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/barriodigital/bff
+ExecStart=/usr/bin/java -jar /opt/barriodigital/bff/app.jar
+
+# TODO-CONFIG: reemplazar los valores antes de copiar este archivo a la EC2.
+Environment=AZURE_TENANT_ID=TODO-CONFIG
+Environment=AZURE_BFF_CLIENT_ID=TODO-CONFIG
+Environment=CORS_ALLOWED_ORIGIN=TODO-CONFIG
+Environment=SERVICES_REQUESTS_URL=http://localhost:8081
+Environment=SERVICES_CATALOG_URL=http://localhost:8082
+
+Restart=always
+RestartSec=5
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
