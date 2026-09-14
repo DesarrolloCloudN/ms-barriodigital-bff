@@ -1,0 +1,262 @@
+{
+  "info": {
+    "name": "BarrioDigital - API Gateway",
+    "description": "Colección de pruebas contra el API Gateway público de BarrioDigital (EP1 DSY1107). Todas las peticiones van directo al API Gateway, sin pasar por Angular, para cumplir el requisito de probar con Postman.\n\nCómo obtener un token fresco antes de la demo:\n1. Entra a https://100.55.196.116.nip.io/ e inicia sesión con el usuario que quieras probar (admin.test, funcionario.test o vecino.test).\n2. Abre DevTools (F12) -> Console y pega:\n   const key = Object.keys(sessionStorage).find(k => k.includes('accesstoken') && k.includes('access_as_user'));\n   copy(JSON.parse(sessionStorage.getItem(key)).secret);\n3. El token queda copiado al portapapeles. Pégalo en la variable de entorno `token` de Postman (sin la palabra Bearer, Postman ya la agrega).\n\nLos access token de Microsoft Entra ID duran alrededor de 1 hora, así que hay que repetir esto si pasa mucho tiempo entre la obtención del token y la prueba.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://brchdis4d7.execute-api.us-east-1.amazonaws.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Publico",
+      "item": [
+        {
+          "name": "GET /api/public (sin token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/public",
+              "host": ["{{base_url}}"],
+              "path": ["api", "public"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tramites",
+      "item": [
+        {
+          "name": "GET /api/requests (sin token, debe dar 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/requests (con token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/requests/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests", "1"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/requests (crear tramite, como Vecino)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoTramiteId\": 1,\n  \"descripcion\": \"Prueba desde Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/requests/:id/estado (Admin/Funcionario -> debe dar 200)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ADMITIDO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests/1/estado",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests", "1", "estado"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/requests/:id/estado (Vecino -> debe dar 403)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ADMITIDO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests/1/estado",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests", "1", "estado"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/requests/:id/estado (saltarse un estado -> debe dar 409)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"RESUELTO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/requests/1/estado",
+              "host": ["{{base_url}}"],
+              "path": ["api", "requests", "1", "estado"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalogo",
+      "item": [
+        {
+          "name": "GET /api/catalog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog",
+              "host": ["{{base_url}}"],
+              "path": ["api", "catalog"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/catalog (Admin -> debe dar 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"descripcion\": \"Creado desde Postman\",\n  \"cupoDiario\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog",
+              "host": ["{{base_url}}"],
+              "path": ["api", "catalog"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/catalog (Vecino -> debe dar 403)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"descripcion\": \"No deberia poder\",\n  \"cupoDiario\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog",
+              "host": ["{{base_url}}"],
+              "path": ["api", "catalog"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/catalog/:id",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Certificado de residencia\",\n  \"descripcion\": \"Actualizado desde Postman\",\n  \"cupoDiario\": 3,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "catalog", "1"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/catalog/:id (solo Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "catalog", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
