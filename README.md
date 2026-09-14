@@ -32,3 +32,8 @@ los microservicios y el origen permitido para CORS (ver `deploy/ms-barriodigital
 ```bash
 ./mvnw clean package
 ```
+
+## Pruebas con Postman
+
+En `postman/BarrioDigital.postman_collection.json` hay una colección con todos los endpoints del API Gateway,
+organizados por Público/Trámites/Catálogo, incluyendo los casos de error esperados (401, 403, 409).
