@@ -19,14 +19,7 @@ import cl.duoc.barriodigital.bff.dto.CrearTipoTramiteRequest;
 import cl.duoc.barriodigital.bff.dto.TipoTramite;
 import cl.duoc.barriodigital.bff.service.CatalogClientService;
 
-/**
- * BFF público (detrás del API Gateway) para el catálogo de tipos de trámite.
- * Ver sección 6 del contrato ("ms-barriodigital-bff").
- */
-// Este controller expone el catalogo de tipos de tramite al frontend. Cada
-// endpoint tiene su propia regla de rol: ver el catalogo lo puede hacer
-// cualquiera logueado, pero crear/editar/eliminar tipos de tramite esta mas
-// restringido.
+/** BFF publico del catalogo de tipos de tramite (ver contrato, seccion 6). */
 @RestController
 @RequestMapping("/api/catalog")
 public class CatalogoController {
@@ -37,15 +30,12 @@ public class CatalogoController {
         this.catalogClientService = catalogClientService;
     }
 
-    // Lista todos los tipos de tramite. Cualquier usuario autenticado puede
-    // verlos (Admin, Funcionario o Vecino).
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public List<TipoTramite> listar() {
         return catalogClientService.listar();
     }
 
-    // Crea un tipo de tramite nuevo. Solo el Admin puede hacerlo.
     @PostMapping
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<TipoTramite> crear(@RequestBody CrearTipoTramiteRequest body) {
@@ -53,16 +43,12 @@ public class CatalogoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    // Actualiza un tipo de tramite existente. Lo pueden hacer Admin o
-    // Funcionario.
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('Admin') or hasRole('Funcionario')")
+    @PreAuthorize("hasRole('Admin')")
     public TipoTramite actualizar(@PathVariable Long id, @RequestBody ActualizarTipoTramiteRequest body) {
         return catalogClientService.actualizar(id, body);
     }
 
-    // Elimina un tipo de tramite. Solo el Admin puede hacerlo. Responde 204
-    // (sin contenido) si la eliminacion fue exitosa.
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {

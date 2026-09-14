@@ -14,22 +14,16 @@ import cl.duoc.barriodigital.bff.dto.ActualizarTipoTramiteRequest;
 import cl.duoc.barriodigital.bff.dto.CrearTipoTramiteRequest;
 import cl.duoc.barriodigital.bff.dto.TipoTramite;
 
-/**
- * Encapsula las llamadas HTTP del BFF hacia ms-barriodigital-catalog
- * (puerto 8082, interno, sin seguridad propia). Ver sección 6 del contrato.
- */
+/** Encapsula las llamadas HTTP del BFF hacia ms-barriodigital-catalog (puerto 8082). */
 @Service
 public class CatalogClientService {
 
-    // Cliente HTTP configurado con la URL base del microservicio de
-    // catalogo, para no tener que repetirla en cada metodo.
     private final RestClient restClient;
 
     public CatalogClientService(@Value("${app.services.catalog-url}") String baseUrl) {
         this.restClient = RestClient.builder().baseUrl(baseUrl).build();
     }
 
-    // Trae todos los tipos de tramite del catalogo.
     public List<TipoTramite> listar() {
         return restClient.get()
                 .uri("/api/catalog")
@@ -38,8 +32,6 @@ public class CatalogClientService {
                 });
     }
 
-    // Busca un tipo de tramite por id. Si no existe, se traduce el 404 del
-    // microservicio a una excepcion que el BFF tambien responde como 404.
     public TipoTramite obtenerPorId(Long id) {
         try {
             return restClient.get()
@@ -51,7 +43,6 @@ public class CatalogClientService {
         }
     }
 
-    // Crea un tipo de tramite nuevo en el catalogo.
     public TipoTramite crear(CrearTipoTramiteRequest body) {
         return restClient.post()
                 .uri("/api/catalog")
@@ -60,7 +51,6 @@ public class CatalogClientService {
                 .body(TipoTramite.class);
     }
 
-    // Actualiza los datos de un tipo de tramite existente.
     public TipoTramite actualizar(Long id, ActualizarTipoTramiteRequest body) {
         try {
             return restClient.put()
@@ -73,18 +63,7 @@ public class CatalogClientService {
         }
     }
 
-    /**
-     * Decrementa en 1 el cupo disponible hoy del tipo de trámite indicado.
-     * Se invoca desde el BFF antes de admitir un trámite (sección 5). Si el
-     * microservicio de catálogo responde 409 (sin cupo), se propaga como
-     * {@link ResponseStatusException} 409 para que el controller NO llame al
-     * microservicio de requests.
-     */
-    // En palabras simples: esto es lo que hace que un tramite no se pueda
-    // admitir si ya no queda cupo para ese tipo de tramite hoy. Se llama
-    // ANTES de cambiar el estado del tramite a ADMITIDO (ver
-    // TramitesController.cambiarEstado). Si no hay cupo, se lanza una
-    // excepcion 409 y el flujo se corta ahi, sin llegar a admitir el tramite.
+    // Descuenta un cupo; sin cupo disponible lanza 409 y no se admite el tramite.
     public void decrementarCupo(Long id) {
         try {
             restClient.patch()
@@ -99,9 +78,7 @@ public class CatalogClientService {
         }
     }
 
-    // Devuelve 1 unidad de cupo al tipo de tramite indicado. Es como la
-    // operacion contraria a decrementarCupo, se usaria por ejemplo si un
-    // tramite admitido se termina rechazando despues.
+    // Devuelve el cupo descontado; se usa si un tramite admitido se rechaza despues.
     public void reponerCupo(Long id) {
         try {
             restClient.patch()
@@ -113,7 +90,6 @@ public class CatalogClientService {
         }
     }
 
-    // Elimina un tipo de tramite del catalogo.
     public void eliminar(Long id) {
         try {
             restClient.delete()
