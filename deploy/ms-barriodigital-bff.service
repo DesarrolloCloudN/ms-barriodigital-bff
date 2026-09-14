@@ -9,8 +9,8 @@ WorkingDirectory=/opt/barriodigital/bff
 ExecStart=/usr/bin/java -jar /opt/barriodigital/bff/app.jar
 
 # TODO-CONFIG: reemplazar los valores antes de copiar este archivo a la EC2.
-Environment=AZURE_TENANT_ID=TODO-CONFIG
-Environment=AZURE_BFF_CLIENT_ID=TODO-CONFIG
+Environment=AZURE_TENANT_ID=b993433f-439b-4f1b-a920-b4d91d2d8329
+Environment=AZURE_BFF_CLIENT_ID=b3c7c3d4-427e-41c2-a2f1-f333156f1c81
 Environment=CORS_ALLOWED_ORIGIN=TODO-CONFIG
 Environment=SERVICES_REQUESTS_URL=http://localhost:8081
 Environment=SERVICES_CATALOG_URL=http://localhost:8082
