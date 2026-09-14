@@ -44,7 +44,7 @@ public class CatalogoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin') or hasRole('Funcionario')")
     public TipoTramite actualizar(@PathVariable Long id, @RequestBody ActualizarTipoTramiteRequest body) {
         return catalogClientService.actualizar(id, body);
     }

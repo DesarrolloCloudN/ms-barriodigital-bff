@@ -29,6 +29,7 @@ import cl.duoc.barriodigital.bff.service.RequestsClientService;
 public class TramitesController {
 
     private static final String ROL_ADMIN = "Admin";
+    private static final String ROL_FUNCIONARIO = "Funcionario";
     private static final String ROL_VECINO = "Vecino";
     // Al pasar a este estado hay que descontar cupo del tipo de tramite.
     private static final String ESTADO_ADMITIDO = "ADMITIDO";
@@ -45,7 +46,7 @@ public class TramitesController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public List<Tramite> listar(@AuthenticationPrincipal Jwt jwt) {
-        if (tieneRol(jwt, ROL_ADMIN)) {
+        if (tieneRol(jwt, ROL_ADMIN) || tieneRol(jwt, ROL_FUNCIONARIO)) {
             return requestsClientService.listarTodos();
         }
         return requestsClientService.listarPorVecino(extraerVecinoId(jwt));
@@ -85,7 +86,7 @@ public class TramitesController {
 
     // Si pasa a ADMITIDO, se descuenta cupo del catalogo antes de guardar el estado.
     @PutMapping("/{id}/estado")
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin') or hasRole('Funcionario')")
     public Tramite cambiarEstado(@PathVariable Long id, @RequestBody CambiarEstadoRequest body) {
         if (ESTADO_ADMITIDO.equalsIgnoreCase(body.estado())) {
             Tramite tramite = requestsClientService.obtenerPorId(id);
@@ -99,9 +100,9 @@ public class TramitesController {
         return roles != null && roles.contains(rol);
     }
 
-    // Se considera Vecino puro solo si no tiene ademas el rol Admin.
+    // Se considera Vecino puro solo si no tiene ademas Admin o Funcionario.
     private boolean esVecino(Jwt jwt) {
-        return tieneRol(jwt, ROL_VECINO) && !tieneRol(jwt, ROL_ADMIN);
+        return tieneRol(jwt, ROL_VECINO) && !tieneRol(jwt, ROL_ADMIN) && !tieneRol(jwt, ROL_FUNCIONARIO);
     }
 
     private String extraerVecinoId(Jwt jwt) {

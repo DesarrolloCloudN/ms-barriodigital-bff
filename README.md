@@ -6,7 +6,7 @@ de Desarrollo Cloud Native I. Construido con Spring Boot y Spring Security.
 ## Responsabilidad
 
 - Valida el JWT emitido por Microsoft Entra ID (issuer, audiencia, firma y vigencia).
-- Aplica autorización por rol (`Admin`, `Vecino`) sobre cada endpoint.
+- Aplica autorización por rol (`Admin`, `Funcionario`, `Vecino`) sobre cada endpoint.
 - Orquesta las llamadas hacia los microservicios de dominio (`ms-barriodigital-requests` y
   `ms-barriodigital-catalog`). No se conecta directamente a la base de datos.
 

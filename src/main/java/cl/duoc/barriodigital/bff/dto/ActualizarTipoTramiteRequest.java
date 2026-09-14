@@ -1,6 +1,6 @@
 package cl.duoc.barriodigital.bff.dto;
 
-// Body de PUT /api/catalog/{id}; solo lo usa Admin.
+// Body de PUT /api/catalog/{id}; lo usan Admin y Funcionario.
 public record ActualizarTipoTramiteRequest(
         String nombre,
         String descripcion,

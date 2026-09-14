@@ -9,7 +9,7 @@ public record Tramite(
         String vecinoNombre,
         String descripcion,
         String estado,
-        String responsableAsignado,
+        String funcionarioAsignado,
         String observaciones,
         LocalDateTime fechaIngreso,
         LocalDateTime fechaActualizacion) {
