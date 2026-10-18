@@ -33,6 +33,9 @@ public class TramitesController {
     private static final String ROL_VECINO = "Vecino";
     // Al pasar a este estado hay que descontar cupo del tipo de tramite.
     private static final String ESTADO_ADMITIDO = "ADMITIDO";
+    // Si se rechaza un tramite que ya estaba ADMITIDO (o despues), hay que reponer su cupo.
+    private static final String ESTADO_RECHAZADO = "RECHAZADO";
+    private static final String ESTADO_INGRESADO = "INGRESADO";
 
     private final RequestsClientService requestsClientService;
     private final CatalogClientService catalogClientService;
@@ -85,12 +88,18 @@ public class TramitesController {
     }
 
     // Si pasa a ADMITIDO, se descuenta cupo del catalogo antes de guardar el estado.
+    // Si se rechaza un tramite que ya habia sido ADMITIDO, se repone ese cupo.
     @PutMapping("/{id}/estado")
     @PreAuthorize("hasRole('Admin') or hasRole('Funcionario')")
     public Tramite cambiarEstado(@PathVariable Long id, @RequestBody CambiarEstadoRequest body) {
         if (ESTADO_ADMITIDO.equalsIgnoreCase(body.estado())) {
             Tramite tramite = requestsClientService.obtenerPorId(id);
             catalogClientService.decrementarCupo(tramite.tipoTramiteId());
+        } else if (ESTADO_RECHAZADO.equalsIgnoreCase(body.estado())) {
+            Tramite tramite = requestsClientService.obtenerPorId(id);
+            if (!ESTADO_INGRESADO.equalsIgnoreCase(tramite.estado())) {
+                catalogClientService.reponerCupo(tramite.tipoTramiteId());
+            }
         }
         return requestsClientService.cambiarEstado(id, body);
     }
