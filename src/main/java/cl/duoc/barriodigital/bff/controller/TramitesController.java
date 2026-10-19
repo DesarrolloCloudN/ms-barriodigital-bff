@@ -66,20 +66,14 @@ public class TramitesController {
         return tramite;
     }
 
-    // Si es Vecino se usan sus datos del token, ignorando el body (evita suplantar a otro).
+    // Siempre se usan los datos de quien esta logueado (Vecino, Admin o Funcionario),
+    // igual que antes se hacia solo para Vecino: evita suplantar a otra persona y
+    // permite que los 3 roles creen un tramite con el mismo formulario simple.
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Tramite> crear(@RequestBody CrearTramiteRequest body, @AuthenticationPrincipal Jwt jwt) {
-        String vecinoId;
-        String vecinoNombre;
-
-        if (esVecino(jwt)) {
-            vecinoId = extraerVecinoId(jwt);
-            vecinoNombre = extraerNombre(jwt);
-        } else {
-            vecinoId = body.vecinoId();
-            vecinoNombre = body.vecinoNombre();
-        }
+        String vecinoId = extraerVecinoId(jwt);
+        String vecinoNombre = extraerNombre(jwt);
 
         CrearTramiteInternalRequest internalRequest =
                 new CrearTramiteInternalRequest(body.tipoTramiteId(), vecinoId, vecinoNombre, body.descripcion());
